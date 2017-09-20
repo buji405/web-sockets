@@ -15,7 +15,8 @@
   </head>
   <body>
     <ul id="messages"></ul>
-    <form action="">2
+    <p id="typing-notification"></p>
+    <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
@@ -26,15 +27,32 @@
       $('form').submit(function(){
         socket.emit('chat message', $('#m').val());
         $('#m').val('');
+
+        $('#typing-notification').text('');
         return false;
       });
-      socket.on('a user disconnected', (id) => {
-       $('#messages').append($('<li>').text('user has left'));
-     });
-      socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-      });
+
+      $('form').on('keydown', () => {
+       if ($('#m').val() !== '') {
+         socket.emit('user is typing');
+       }
     });
+
+    socket.on('user typing', () => {
+      $('#typing-notification').text('someone is typing');
+    });
+
+    socket.on('user connection', (msg) => {
+      $('#messages').append($('<li>').text(msg));
+    })
+
+    socket.on('disconnect', (id) => {
+     $('#messages').append($('<li>').text('user has left'));
+   });
+    socket.on('chat message', function(msg){
+      $('#messages').append($('<li>').text(msg));
+    });
+  });
   </script>
 </body>
 </html>

@@ -7,32 +7,22 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-  console.log('a user connected');  
-  
-  socket.broadcast.emit('a user connected');
-  
+  io.emit('user connection', 'someone joined the chat.');
+
   socket.on('chat message', function(msg){
-    console.log(msg);
-    io.emit('chat message', msg); 
+    io.emit('chat message', msg);
   });
-  
+
+  socket.on('user is typing', () => {
+   io.emit('user typing')
+ })
+
   socket.on('disconnect', function(){
-    console.log('user disconnected');
+    socket.broadcast.emit('a user disconnected');
   });
-  
-  socket.broadcast.emit('a user disconnected');
-  
-});
+})
 
-
-
-  // socket.on('user is typing', () => {
-  //   io.emit('user typing')
-  // })
-
-    
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
-    
